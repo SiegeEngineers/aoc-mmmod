@@ -124,7 +124,7 @@ static char do_before_setup_code () {
       GetProcAddress(loaded_mods[i].instance, "mmm_before_setup");
     if (before_setup) {
       dbg_print("  calling before_setup for index %d\n", i);
-      before_setup(NULL);
+      before_setup(&loaded_mods[i]);
     }
   }
 
@@ -137,7 +137,7 @@ static char do_after_setup_code () {
       GetProcAddress(loaded_mods[i].instance, "mmm_after_setup");
     if (after_setup) {
       dbg_print("  calling after_setup for index %d\n", i);
-      after_setup(NULL);
+      after_setup(&loaded_mods[i]);
     }
   }
 
@@ -218,7 +218,7 @@ static void deinit() {
   for (size_t i = 0; loaded_mods[i].instance != NULL; i++) {
     cb_mmm_unload unload = (cb_mmm_unload) GetProcAddress(loaded_mods[i].instance, "mmm_unload");
     if (unload != NULL) {
-      unload(NULL);
+      unload(&loaded_mods[i]);
     }
     FreeLibrary(loaded_mods[i].instance);
   }
