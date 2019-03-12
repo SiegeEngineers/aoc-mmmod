@@ -110,6 +110,19 @@ hook_t install_vtblhook (void* orig_address, void* hook_address) {
   return hook;
 }
 
+hook_t install_bytes (void* orig_address, void* buffer, size_t buffer_size) {
+  assert(orig_address != NULL);
+  assert(buffer != NULL);
+  assert(buffer_size > 0);
+
+  dbg_print("installing hook at %p BYTES (%p %d)\n", orig_address, buffer, buffer_size);
+  void* orig_data = overwrite_bytes(orig_address, buffer, buffer_size);
+  if (orig_data == NULL) return NULL;
+  hook_t hook = new_hook(orig_address, buffer_size);
+  hook->orig_data = orig_data;
+  return hook;
+}
+
 void revert_hook (hook_t hook) {
   assert(hook != NULL);
   assert(hook->ptr != NULL);

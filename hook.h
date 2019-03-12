@@ -22,6 +22,11 @@ hook_t install_callhook (void* orig_address, void* hook_address);
 hook_t install_vtblhook (void* orig_address, void* hook_address);
 
 /**
+ * Overwrite some arbitrary bytes, not necessarily a call/jmp/vtbl hook.
+ */
+hook_t install_bytes (void* orig_address, void* buffer, size_t buf_size);
+
+/**
  * Revert an existing hook.
  */
 void revert_hook (hook_t hook);
