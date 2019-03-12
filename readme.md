@@ -58,6 +58,8 @@ Called right before the DLL unloads. Revert your hooks and free your data struct
 The `mmm_mod_info*` structure contains a `meta` property that will tell you certain things about the game.
 
 ```c
+// const char* containing the version of the mmmod loader
+info->meta->version;
 // const char* containing the base directory of the game, eg C:\Program Files\Age of Empires II
 info->meta->game_base_dir;
 // const char* containing the base directory of the UserPatch mod that is loading this DLL,
@@ -74,4 +76,4 @@ Mods must be provided as DLL files. The `mmm_` functions must be exported from t
 To get the `mmm_mod_info` structures, copy-paste mmmod.h from this repository into your mod source code. The ABI will be maintained as much as possible.
 
 ## License
-[GPL-3.0](./LICENSE.md)
+[LGPL-3.0](./LICENSE.md)

@@ -4,6 +4,8 @@
 #include "hook.h"
 #include "mmmod.h"
 
+#define MMMOD_VERSION "0.1.0"
+
 #ifdef DEBUG
 #  define dbg_print(...) printf("[mmmod] " __VA_ARGS__); fflush(stdout)
 #else
@@ -57,6 +59,7 @@ static void print_error (HRESULT hresult) {
 
 static char do_before_setup_code () {
   memset(&meta, 0, sizeof(meta));
+  meta.version = MMMOD_VERSION;
   meta.game_base_dir = ".";
   meta.mod_short_name = *up_mod_name;
 
