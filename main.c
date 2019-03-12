@@ -4,7 +4,7 @@
 #include "hook.h"
 #include "mmmod.h"
 
-#define MMMOD_VERSION "0.1.0"
+#define MMMOD_VERSION "0.1.1"
 
 #ifdef DEBUG
 #  define dbg_print(...) printf("[mmmod] " __VA_ARGS__); fflush(stdout)
