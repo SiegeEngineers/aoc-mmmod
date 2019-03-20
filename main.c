@@ -180,10 +180,7 @@ static void undo_initial_setup () {
 
 static void redo_initial_setup () {
   void* start_options = *(void**) (*(size_t*) game_instance + 0x28);
-  printf("%p\n", start_options);
   char* base_dir = (char*) ((size_t) start_options + 0x1467);
-  printf("%p\n", base_dir);
-  printf("%s\n", base_dir);
 
   aoc_open_archive("sounds_x1.drs", "tribe", base_dir, 1);
   aoc_open_archive("gamedata_x1.drs", "tribe", base_dir, 0);
@@ -207,7 +204,6 @@ static void init () {
   }
 
   void** game_vtbl = *(void**) *game_instance;
-  printf("fn_game_run %p [1] %p &[1] %p\n", game_vtbl, game_vtbl[1], &game_vtbl[1]);
   aoc_game_run = (fn_game_run) game_vtbl[1];
   hooks[count_hooks()] = install_vtblhook((void*) &game_vtbl[1], (void*) game_run_hook);
 }
