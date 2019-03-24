@@ -10,13 +10,13 @@ This tool is only intended for use in other mods at this time. You can use it to
 ## Usage
 Download the `language_x1_p1.dll` file from the [releases page](https://github.com/siegeengineers/aoc-mmmod/releases) and put it in `%AOC-DIR%\Games\%YOUR-MOD-NAME%\Data\language_x1_p1.dll`. Then, place DLL files into `%AOC-DIR%\Games\%YOUR-MOD-NAME%\mmmods\` to install mod modules.
 
-If you already have a `language_x1_p1.dll` for custom strings, rename it to `language_x1_m.dll`. mmmod will tell the game to use `language_x1_m.dll` for loading custom strings. It should look like:
+**If you already have a `language_x1_p1.dll` for custom strings**, rename it to `language_x1_m.dll`. mmmod will tell the game to use `language_x1_m.dll` for loading custom strings. It should look like:
 ```
 Games\%YOUR-MOD-NAME%\Data\language_x1_p1.dll ← the mmmod loader
 Games\%YOUR-MOD-NAME%\Data\language_x1_m.dll ← the real language file
 ```
 
-If you are already using the aoc-language-ini mod, delete its `language_x1_p1.dll` file and install the `aoc-language-ini.dll` file from the [aoc-language-ini releases page](https://github.com/SiegeEngineers/aoc-language-ini/releases) into the `mmmods\` folder. It should look like:
+**If you are already using the aoc-language-ini mod**, delete its `language_x1_p1.dll` file and install the `aoc-language-ini.dll` file from the [aoc-language-ini releases page](https://github.com/SiegeEngineers/aoc-language-ini/releases) into the `mmmods\` folder. It should look like:
 ```
 Games\%YOUR-MOD-NAME%\Data\language_x1_p1.dll ← the mmmod loader
 Games\%YOUR-MOD-NAME%\mmmods\aoc-language-ini.dll ← the aoc-language-ini loader
