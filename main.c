@@ -57,6 +57,15 @@ static void print_error (HRESULT hresult) {
   }
 }
 
+static char is_mod_loaded(const char* name) {
+  for (int i = 0; loaded_mods[i].instance != NULL; i++) {
+    if (strcmp(loaded_mods[i].name, name) == 0) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
 static void install_callbacks(mmm_mod_info* info) {
   info->api = calloc(1, sizeof(mmm_api));
   info->api->hook_jmp = install_jmphook;
@@ -64,6 +73,7 @@ static void install_callbacks(mmm_mod_info* info) {
   info->api->hook_vtbl = install_vtblhook;
   info->api->patch_bytes = install_bytes;
   info->api->revert_hook = revert_hook;
+  info->api->is_mod_loaded = is_mod_loaded;
 }
 
 static char do_before_setup_code () {
