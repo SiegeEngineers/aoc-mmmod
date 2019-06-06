@@ -57,6 +57,15 @@ static void print_error (HRESULT hresult) {
   }
 }
 
+static void install_callbacks(mmm_mod_info* info) {
+  info->api = calloc(1, sizeof(mmm_api));
+  info->api->hook_jmp = install_jmphook;
+  info->api->hook_call = install_callhook;
+  info->api->hook_vtbl = install_vtblhook;
+  info->api->patch_bytes = install_bytes;
+  info->api->revert_hook = revert_hook;
+}
+
 static char do_before_setup_code () {
   memset(&meta, 0, sizeof(meta));
   meta.version = MMMOD_VERSION;
@@ -104,6 +113,7 @@ static char do_before_setup_code () {
       mmm_mod_info* info = &loaded_mods[i];
       info->meta = &meta;
       info->instance = LoadLibrary(dll_name);
+      install_callbacks(info);
       if (info->instance == NULL) {
         print_error(HRESULT_FROM_WIN32(GetLastError()));
       } else {
@@ -144,6 +154,24 @@ static char do_after_setup_code () {
   return 1;
 }
 
+typedef int __thiscall (*fn_game_run) (void*);
+static fn_game_run aoc_game_run = (fn_game_run) NULL;
+static int __thiscall game_run_hook (void* game) {
+  dbg_print("run hook\n");
+  assert(aoc_game_run != NULL);
+
+  do_after_setup_code();
+
+  return aoc_game_run(game);
+}
+
+static void install_run_hook() {
+  void** game_vtbl = *(void**) *game_instance;
+  aoc_game_run = (fn_game_run) game_vtbl[1];
+  hooks[count_hooks()] = install_vtblhook((void*) &game_vtbl[1], (void*) game_run_hook);
+  dbg_print("installed hooks\n");
+}
+
 typedef int __thiscall (*fn_game_setup) (void*);
 static fn_game_setup aoc_game_setup = (fn_game_setup) 0x43AE90;
 static int __thiscall game_setup_hook (void* game) {
@@ -155,17 +183,9 @@ static int __thiscall game_setup_hook (void* game) {
   int result = aoc_game_setup(game);
   dbg_print("original setup said %d\n", result);
 
+  install_run_hook();
+
   return result;
-}
-
-typedef int __thiscall (*fn_game_run) (void*);
-static fn_game_run aoc_game_run = (fn_game_run) NULL;
-static int __thiscall game_run_hook (void* game) {
-  assert(aoc_game_run != NULL);
-
-  do_after_setup_code();
-
-  return aoc_game_run(game);
 }
 
 typedef void __cdecl (*fn_close_archive)(const char*);
@@ -201,11 +221,8 @@ static void init () {
     undo_initial_setup();
     do_before_setup_code();
     redo_initial_setup();
+    install_run_hook();
   }
-
-  void** game_vtbl = *(void**) *game_instance;
-  aoc_game_run = (fn_game_run) game_vtbl[1];
-  hooks[count_hooks()] = install_vtblhook((void*) &game_vtbl[1], (void*) game_run_hook);
 }
 
 static void deinit() {

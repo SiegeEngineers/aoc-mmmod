@@ -21,4 +21,4 @@ clean:
 strings.res: strings.rc
 	$(WINDRES) -o $@ -O coff $<
 $(LOADER_NAME): *.c strings.res
-	$(CC) -o $@ -Wall -m32 $(FLAGS) -shared $^
+	$(CC) -o $@ -Wall -m32 $(FLAGS) -shared -static-libgcc $^

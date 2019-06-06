@@ -1,6 +1,9 @@
 #pragma once
 #include <stdio.h>
 
+/**
+ * Opaque type containing hook metadata. Use it to revert hooks.
+ */
 typedef void* hook_t;
 
 /**
