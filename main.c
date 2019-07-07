@@ -1,54 +1,53 @@
-#include <windows.h>
-#include <stdio.h>
-#include <assert.h>
 #include "hook.h"
 #include "mmmod.h"
+#include <assert.h>
+#include <stdio.h>
+#include <windows.h>
 
 #define MMMOD_VERSION "0.1.1"
 
-#ifdef DEBUG
-#  define dbg_print(...) printf("[mmmod] " __VA_ARGS__); fflush(stdout)
+#ifdef NDEBUG
+#define dbg_print(...)
 #else
-#  define dbg_print(...)
+#define dbg_print(...) printf("[mmmod] " __VA_ARGS__)
 #endif
 
-typedef void (*cb_mmm_load) (void*);
-typedef void (*cb_mmm_before_setup) (void*);
-typedef void (*cb_mmm_after_setup) (void*);
-typedef void (*cb_mmm_unload) (void*);
+typedef void (*cb_mmm_load)(void*);
+typedef void (*cb_mmm_before_setup)(void*);
+typedef void (*cb_mmm_after_setup)(void*);
+typedef void (*cb_mmm_unload)(void*);
 
-static char** up_mod_name = (char**) 0x7A5058;
-static char** up_mod_dir = (char**) 0x7A506C;
-static void** game_instance = (void**) 0x7912A0;
+static char** up_mod_name = (char**)0x7A5058;
+static char** up_mod_dir = (char**)0x7A506C;
+static void** game_instance = (void**)0x7912A0;
 static mmm_meta meta;
 
 // should be enough for anyone, I'd hope
 static mmm_mod_info loaded_mods[100];
 static HMODULE original_langfile = NULL;
-static hook_t hooks[10] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+static hook_t hooks[10] = {NULL, NULL, NULL, NULL, NULL,
+                           NULL, NULL, NULL, NULL, NULL};
 
 static size_t count_hooks() {
   size_t i = 0;
-  for (; hooks[i] != NULL; i++);
+  for (; hooks[i] != NULL; i++)
+    ;
   return i;
 }
 
-static char ends_with (char* haystack, char* needle) {
+static char ends_with(char* haystack, char* needle) {
   size_t hl = strlen(haystack);
   size_t nl = strlen(needle);
 
   return strncmp(&haystack[hl - nl], needle, nl) == 0;
 }
 
-static void print_error (HRESULT hresult) {
+static void print_error(HRESULT hresult) {
   LPTSTR errorText = NULL;
-  FormatMessage(
-      FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
-      NULL,
-      hresult,
-      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-      (LPTSTR)&errorText,
-      0, NULL);
+  FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                    FORMAT_MESSAGE_IGNORE_INSERTS,
+                NULL, hresult, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                (LPTSTR)&errorText, 0, NULL);
 
   if (NULL != errorText) {
     fprintf(stderr, "[mmmod] Failed to load mod dll: %s\n", errorText);
@@ -76,7 +75,7 @@ static void install_callbacks(mmm_mod_info* info) {
   info->api->is_mod_loaded = is_mod_loaded;
 }
 
-static char do_before_setup_code () {
+static char do_before_setup_code() {
   memset(&meta, 0, sizeof(meta));
   meta.version = MMMOD_VERSION;
   meta.game_base_dir = ".";
@@ -101,7 +100,8 @@ static char do_before_setup_code () {
 
   original_langfile = LoadLibrary(fallback_lang_dll);
   if (original_langfile != NULL) {
-    hooks[count_hooks()] = install_bytes((void*) 0x43CF11, (void*) &original_langfile, sizeof(HMODULE*));
+    hooks[count_hooks()] = install_bytes(
+        (void*)0x43CF11, (void*)&original_langfile, sizeof(HMODULE*));
   }
 
   dbg_print("loading mods from %s\n", mmmods_glob);
@@ -127,7 +127,8 @@ static char do_before_setup_code () {
       if (info->instance == NULL) {
         print_error(HRESULT_FROM_WIN32(GetLastError()));
       } else {
-        cb_mmm_load load = (cb_mmm_load) GetProcAddress(info->instance, "mmm_load");
+        cb_mmm_load load =
+            (cb_mmm_load)GetProcAddress(info->instance, "mmm_load");
         if (load) {
           load(info);
         }
@@ -140,8 +141,8 @@ static char do_before_setup_code () {
   FindClose(dir);
 
   for (int i = 0; loaded_mods[i].instance != NULL; i++) {
-    cb_mmm_before_setup before_setup = (cb_mmm_before_setup)
-      GetProcAddress(loaded_mods[i].instance, "mmm_before_setup");
+    cb_mmm_before_setup before_setup = (cb_mmm_before_setup)GetProcAddress(
+        loaded_mods[i].instance, "mmm_before_setup");
     if (before_setup) {
       dbg_print("  calling before_setup for index %d\n", i);
       before_setup(&loaded_mods[i]);
@@ -151,10 +152,10 @@ static char do_before_setup_code () {
   return 1;
 }
 
-static char do_after_setup_code () {
+static char do_after_setup_code() {
   for (int i = 0; loaded_mods[i].instance != NULL; i++) {
-    cb_mmm_after_setup after_setup = (cb_mmm_after_setup)
-      GetProcAddress(loaded_mods[i].instance, "mmm_after_setup");
+    cb_mmm_after_setup after_setup = (cb_mmm_after_setup)GetProcAddress(
+        loaded_mods[i].instance, "mmm_after_setup");
     if (after_setup) {
       dbg_print("  calling after_setup for index %d\n", i);
       after_setup(&loaded_mods[i]);
@@ -164,9 +165,9 @@ static char do_after_setup_code () {
   return 1;
 }
 
-typedef int __thiscall (*fn_game_run) (void*);
-static fn_game_run aoc_game_run = (fn_game_run) NULL;
-static int __thiscall game_run_hook (void* game) {
+typedef int __thiscall (*fn_game_run)(void*);
+static fn_game_run aoc_game_run = (fn_game_run)NULL;
+static int __thiscall game_run_hook(void* game) {
   dbg_print("run hook\n");
   assert(aoc_game_run != NULL);
 
@@ -176,15 +177,16 @@ static int __thiscall game_run_hook (void* game) {
 }
 
 static void install_run_hook() {
-  void** game_vtbl = *(void**) *game_instance;
-  aoc_game_run = (fn_game_run) game_vtbl[1];
-  hooks[count_hooks()] = install_vtblhook((void*) &game_vtbl[1], (void*) game_run_hook);
+  void** game_vtbl = *(void**)*game_instance;
+  aoc_game_run = (fn_game_run)game_vtbl[1];
+  hooks[count_hooks()] =
+      install_vtblhook((void*)&game_vtbl[1], (void*)game_run_hook);
   dbg_print("installed hooks\n");
 }
 
-typedef int __thiscall (*fn_game_setup) (void*);
-static fn_game_setup aoc_game_setup = (fn_game_setup) 0x43AE90;
-static int __thiscall game_setup_hook (void* game) {
+typedef int __thiscall (*fn_game_setup)(void*);
+static fn_game_setup aoc_game_setup = (fn_game_setup)0x43AE90;
+static int __thiscall game_setup_hook(void* game) {
   dbg_print("setup hook\n");
 
   do_before_setup_code();
@@ -199,25 +201,25 @@ static int __thiscall game_setup_hook (void* game) {
 }
 
 typedef void __cdecl (*fn_close_archive)(const char*);
-static fn_close_archive aoc_close_archive = (fn_close_archive) 0x543580;
+static fn_close_archive aoc_close_archive = (fn_close_archive)0x543580;
 typedef void __cdecl (*fn_open_archive)(const char*, const char*, char*, int);
-static fn_open_archive aoc_open_archive = (fn_open_archive) 0x543370;
-static void undo_initial_setup () {
+static fn_open_archive aoc_open_archive = (fn_open_archive)0x543370;
+static void undo_initial_setup() {
   aoc_close_archive("sounds_x1.drs");
   aoc_close_archive("gamedata_x1.drs");
   aoc_close_archive("gamedata_x1_p1.drs");
 }
 
-static void redo_initial_setup () {
-  void* start_options = *(void**) (*(size_t*) game_instance + 0x28);
-  char* base_dir = (char*) ((size_t) start_options + 0x1467);
+static void redo_initial_setup() {
+  void* start_options = *(void**)(*(size_t*)game_instance + 0x28);
+  char* base_dir = (char*)((size_t)start_options + 0x1467);
 
   aoc_open_archive("sounds_x1.drs", "tribe", base_dir, 1);
   aoc_open_archive("gamedata_x1.drs", "tribe", base_dir, 0);
   aoc_open_archive("gamedata_x1_p1.drs", "tribe", base_dir, 1);
 }
 
-static int8_t is_userpatch_15() { return *(int8_t *)0x680A18 == 0x10; }
+static char is_userpatch_15() { return *(char*)0x680A18 == 0x10; }
 
 static void init() {
   dbg_print("init()\n");
@@ -227,9 +229,11 @@ static void init() {
 
   if (*game_instance == NULL) {
     // Called before setup, install Game::setup() hook
-    hooks[count_hooks()] = install_callhook((void*) 0x43A6A5, (void*) game_setup_hook);
+    hooks[count_hooks()] =
+        install_callhook((void*)0x43A6A5, (void*)game_setup_hook);
   } else {
-    // Called during setup, we need to undo the initial loading stuff and redo it after mods are ready
+    // Called during setup, we need to undo the initial loading stuff and redo
+    // it after mods are ready
     undo_initial_setup();
     do_before_setup_code();
     redo_initial_setup();
@@ -244,7 +248,8 @@ static void deinit() {
     return;
 
   for (size_t i = 0; loaded_mods[i].instance != NULL; i++) {
-    cb_mmm_unload unload = (cb_mmm_unload) GetProcAddress(loaded_mods[i].instance, "mmm_unload");
+    cb_mmm_unload unload =
+        (cb_mmm_unload)GetProcAddress(loaded_mods[i].instance, "mmm_unload");
     if (unload != NULL) {
       unload(&loaded_mods[i]);
     }
@@ -263,7 +268,7 @@ static void deinit() {
   }
 }
 
-BOOL WINAPI DllMain (HINSTANCE dll, int reason, void*_) {
+BOOL WINAPI DllMain(HINSTANCE dll, int reason, void* _) {
   if (reason == DLL_PROCESS_ATTACH) {
     DisableThreadLibraryCalls(dll);
     init();
