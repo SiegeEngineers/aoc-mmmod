@@ -268,7 +268,7 @@ static void deinit() {
   }
 }
 
-BOOL WINAPI DllMain(HINSTANCE dll, int reason, void* _) {
+__declspec(dllexport) BOOL WINAPI DllMain(HINSTANCE dll, int reason, void* _) {
   if (reason == DLL_PROCESS_ATTACH) {
     DisableThreadLibraryCalls(dll);
     init();

@@ -3,7 +3,7 @@ WINDRES = i686-w64-mingw32-windres
 
 LOADER_NAME = language_x1_p1.dll
 
-OPTFLAGS = -O3 -s
+OPTFLAGS = -O3 -s -flto -Wl,--exclude-all-symbols
 DBGFLAGS = -DDEBUG -g
 ifeq ($(RELEASE),1)
   FLAGS = $(OPTFLAGS)
