@@ -217,11 +217,13 @@ static void redo_initial_setup () {
   aoc_open_archive("gamedata_x1_p1.drs", "tribe", base_dir, 1);
 }
 
-static void init () {
+static int8_t is_userpatch_15() { return *(int8_t *)0x680A18 == 0x10; }
+
+static void init() {
   dbg_print("init()\n");
 
-  // try to load this thing lol
-  /* LoadLibrary("mmmods\\rempires.dll"); */
+  if (!is_userpatch_15())
+    return;
 
   if (*game_instance == NULL) {
     // Called before setup, install Game::setup() hook
@@ -237,6 +239,9 @@ static void init () {
 
 static void deinit() {
   dbg_print("deinit()\n");
+
+  if (!is_userpatch_15())
+    return;
 
   for (size_t i = 0; loaded_mods[i].instance != NULL; i++) {
     cb_mmm_unload unload = (cb_mmm_unload) GetProcAddress(loaded_mods[i].instance, "mmm_unload");
