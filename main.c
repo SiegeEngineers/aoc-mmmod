@@ -78,7 +78,7 @@ static void install_callbacks(mmm_mod_info* info) {
 static char do_before_setup_code() {
   memset(&meta, 0, sizeof(meta));
   meta.version = MMMOD_VERSION;
-  meta.game_base_dir = ".";
+  meta.game_base_dir = ".\\";
   meta.mod_short_name = *up_mod_name;
 
   char is_up_mod = strncmp(*up_mod_name, "age2_x1", 7) != 0;
