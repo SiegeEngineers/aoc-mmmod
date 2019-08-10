@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <windows.h>
 
-#define MMMOD_VERSION "0.1.2"
+#define MMMOD_VERSION "0.1.3"
 
 #ifdef NDEBUG
 #define dbg_print(...)
