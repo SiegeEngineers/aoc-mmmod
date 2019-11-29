@@ -42,7 +42,7 @@ static void* overwrite_bytes(void* ptr, void* value, size_t size) {
     dbg_print("Couldn't unprotect?! @ %p\n", ptr);
     return NULL;
   }
-  memcpy(orig_data, value, size);
+  memcpy(orig_data, ptr, size);
   memcpy(ptr, value, size);
   VirtualProtect(ptr, size, old, &tmp);
   return orig_data;
