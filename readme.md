@@ -23,6 +23,15 @@ Games\%YOUR-MOD-NAME%\mmmods\aoc-language-ini.dll ← the aoc-language-ini loade
 Games\%YOUR-MOD-NAME%\language.ini ← your language INI file
 ```
 
+## Usage with Voobly
+Download the `userpatch.dll` file from the [releases page](https://github.com/siegeengineers/aoc-mmmod/releases) and put it in `%AOC-DIR%\Voobly Mods\Patches\AOC\%YOUR-MOD-NAME%\userpatch.dll`. Then, place DLL files into `%AOC-DIR%\Voobly Mods\Patches\AOC\%YOUR-MOD-NAME%\mmmods\` to install mod modules.
+
+**mmmod requires UserPatch 1.5**, so the `userpatch.dll` from UserPatch 1.5 must also be loaded. To do this, copy `%AOC-DIR%\Voobly Mods\Patches\AOC\1.5\userpatch.dll` to a new file `%AOC-DIR%\Voobly Mods\Patches\AOC\%YOUR-MOD-NAME%\userpatch_m.dll`. mmmod will load it appropriately.
+```
+Voobly Mods\Patches\AOC\%YOUR-MOD-NAME%\userpatch.dll ← the mmmod loader
+Voobly Mods\Patches\AOC\%YOUR-MOD-NAME%\userpatch_m.dll ← the UserPatch 1.5 dll file
+```
+
 ## Writing a mod
 Mod DLLs can expose a few functions that will be called by mmmod at specific points. In the future, there may be more granular functions. At the moment, these are available:
 

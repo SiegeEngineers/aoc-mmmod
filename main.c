@@ -2,6 +2,7 @@
 #include "mmmod.h"
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <windows.h>
 
 #define MMMOD_VERSION "0.1.3"
@@ -271,10 +272,32 @@ static void deinit() {
 __declspec(dllexport) BOOL WINAPI DllMain(HINSTANCE dll, int reason, void* _) {
   if (reason == DLL_PROCESS_ATTACH) {
     DisableThreadLibraryCalls(dll);
+#ifdef MMMOD_STANDALONE
     init();
+#endif
   }
   if (reason == DLL_PROCESS_DETACH) {
     deinit();
   }
   return 1;
 }
+
+#ifdef MMMOD_VOOBLY
+struct userpatch_interface {
+  void* vtable;
+};
+struct voobly_mod_api {
+  void* vtable;
+};
+
+typedef void (*get_up_interface)(struct userpatch_interface**, struct voobly_mod_api*);
+
+__declspec(dllexport) void GetUPInterface(struct userpatch_interface** userpatch_out, struct voobly_mod_api* mod_api) {
+  HINSTANCE orig_userpatch_dll = LoadLibrary("userpatch_m.dll");
+  get_up_interface init_orig = (get_up_interface)GetProcAddress(orig_userpatch_dll, "GetUPInterface");
+  if (init_orig)
+    init_orig(userpatch_out, mod_api);
+
+  init();
+}
+#endif
