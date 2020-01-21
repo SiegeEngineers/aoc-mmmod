@@ -1,0 +1,36 @@
+name: CI
+on: [push]
+jobs:
+  build:
+    name: Build on Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Prepare release DLL
+        run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -A Win32
+      - name: Build release DLL
+        run: cmake --build build --verbose
+      - name: Make artifact
+        run: |
+          mkdir -p artifact
+          cp build/Debug/aoc-builtin-rms.dll artifact
+      - uses: actions/upload-artifact@master
+        with:
+          name: aoc-builtin-rms
+          path: artifact
+
+  cross-build:
+    name: Build on Linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - run: sudo apt-get update
+      - name: Install cross compiler
+        run: sudo apt-get install mingw-w64 cmake
+      - name: Run CMake
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=`which i686-w64-mingw32-gcc` -DCMAKE_CXX_COMPILER=`which i686-w64-mingw32-g++`
+      - name: Compile
+        run: cmake --build build
