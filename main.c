@@ -283,6 +283,32 @@ __declspec(dllexport) BOOL WINAPI DllMain(HINSTANCE dll, int reason, void* _) {
 }
 
 #ifdef MMMOD_VOOBLY
+
+// modplugin.dll API
+struct game_plugin_vtable {
+  int (*get_version)();
+};
+struct game_plugin {
+  struct game_plugin_vtable* vtable;
+};
+
+static int get_version() {
+  return 7;
+}
+
+static struct game_plugin_vtable getinterface_vtbl = {
+  get_version,
+};
+static struct game_plugin getinterface_plugin = {
+  &getinterface_vtbl,
+};
+
+__declspec(dllexport) struct game_plugin* GetInterface() {
+  init();
+  return &getinterface_plugin;
+}
+
+// userpatch.dll API
 struct userpatch_interface {
   void* vtable;
 };

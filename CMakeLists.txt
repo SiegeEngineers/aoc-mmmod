@@ -53,6 +53,6 @@ target_sources(aoc-mmmod-voobly
 )
 set_target_properties(aoc-mmmod-voobly PROPERTIES
     PREFIX ""
-    OUTPUT_NAME "userpatch"
+    OUTPUT_NAME "modplugin"
     SUFFIX ".dll"
     POSITION_INDEPENDENT_CODE OFF)
