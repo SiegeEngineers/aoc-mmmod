@@ -9,6 +9,7 @@ if (NOT MSVC)
 endif()
 
 set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_EXTENSIONS OFF)
 
 include(CheckIPOSupported)
 check_ipo_supported(RESULT IPO_SUPPORTED OUTPUT error)
